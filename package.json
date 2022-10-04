@@ -1,0 +1,29 @@
+{
+  "name": "fullstack_blog_2022",
+  "version": "0.0.1",
+  "description": "blog app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jariast/fullstack_blog_2022.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jariast/fullstack_blog_2022/issues"
+  },
+  "homepage": "https://github.com/jariast/fullstack_blog_2022#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.24.0",
+    "nodemon": "^2.0.20"
+  }
+}

@@ -58,6 +58,14 @@ const listWithSeveralBlogs = [
     likes: 2,
     __v: 0,
   },
+  {
+    _id: '5a422bc61b54a676234d17fd',
+    title: 'test title',
+    author: 'Robert C. Martin',
+    url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
+    likes: 0,
+    __v: 0,
+  },
 ];
 
 module.exports = {

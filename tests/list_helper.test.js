@@ -1,5 +1,8 @@
 const listHelper = require('../utils/list_helper');
-const testHelper = require('../utils/test_helpers');
+const {
+  listWithOneBlog,
+  listWithSeveralBlogs,
+} = require('../utils/test_helpers');
 
 test('dummy returns one', () => {
   const blogs = [];
@@ -13,11 +16,11 @@ describe('total likes', () => {
   });
 
   test('Single blog, should return its likes', () => {
-    expect(listHelper.totalLikes(testHelper.listWithOneBlog)).toBe(5);
+    expect(listHelper.totalLikes(listWithOneBlog)).toBe(5);
   });
 
   test('List with several blogs, should return the sum of all blogs likes', () => {
-    expect(listHelper.totalLikes(testHelper.listWithSeveralBlogs)).toBe(36);
+    expect(listHelper.totalLikes(listWithSeveralBlogs)).toBe(36);
   });
 });
 
@@ -27,14 +30,32 @@ describe('favorite blog', () => {
   });
 
   test('Single blog list, should return blog', () => {
-    expect(listHelper.favoriteBlog(testHelper.listWithOneBlog)).toEqual(
-      testHelper.listWithOneBlog[0]
+    expect(listHelper.favoriteBlog(listWithOneBlog)).toEqual(
+      listWithOneBlog[0]
     );
   });
 
   test('List with several blogs, should return fav blog', () => {
-    expect(listHelper.favoriteBlog(testHelper.listWithSeveralBlogs)).toEqual(
-      testHelper.listWithSeveralBlogs[2]
+    expect(listHelper.favoriteBlog(listWithSeveralBlogs)).toEqual(
+      listWithSeveralBlogs[2]
+    );
+  });
+});
+
+describe('prolific author', () => {
+  test('Empty blog list should return null', () => {
+    expect(listHelper.prolificAuthor([])).toBeNull();
+  });
+
+  test('Single blog list, should return that blog author and blog count should be 1', () => {
+    const expectedAuthor = { author: 'Edsger W. Dijkstra', blogs: 1 };
+    expect(listHelper.prolificAuthor(listWithOneBlog)).toEqual(expectedAuthor);
+  });
+
+  test('Several blogs list should return author with most blogs and with appropiate blog count', () => {
+    const expectedAuthor = { author: 'Robert C. Martin', blogs: 4 };
+    expect(listHelper.prolificAuthor(listWithSeveralBlogs)).toEqual(
+      expectedAuthor
     );
   });
 });

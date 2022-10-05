@@ -21,7 +21,7 @@ const compareLikes = (currentFav, blog) => {
   }
 };
 
-const prolificAuthor = (blogs) => {
+const mostBlogs = (blogs) => {
   if (!blogs || blogs.length === 0) {
     return null;
   }
@@ -41,5 +41,5 @@ module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  prolificAuthor,
+  mostBlogs,
 };

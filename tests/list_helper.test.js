@@ -44,18 +44,16 @@ describe('favorite blog', () => {
 
 describe('prolific author', () => {
   test('Empty blog list should return null', () => {
-    expect(listHelper.prolificAuthor([])).toBeNull();
+    expect(listHelper.mostBlogs([])).toBeNull();
   });
 
   test('Single blog list, should return that blog author and blog count should be 1', () => {
     const expectedAuthor = { author: 'Edsger W. Dijkstra', blogs: 1 };
-    expect(listHelper.prolificAuthor(listWithOneBlog)).toEqual(expectedAuthor);
+    expect(listHelper.mostBlogs(listWithOneBlog)).toEqual(expectedAuthor);
   });
 
   test('Several blogs list should return author with most blogs and with appropiate blog count', () => {
     const expectedAuthor = { author: 'Robert C. Martin', blogs: 4 };
-    expect(listHelper.prolificAuthor(listWithSeveralBlogs)).toEqual(
-      expectedAuthor
-    );
+    expect(listHelper.mostBlogs(listWithSeveralBlogs)).toEqual(expectedAuthor);
   });
 });

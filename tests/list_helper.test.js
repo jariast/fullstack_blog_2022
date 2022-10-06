@@ -57,3 +57,19 @@ describe('prolific author', () => {
     expect(listHelper.mostBlogs(listWithSeveralBlogs)).toEqual(expectedAuthor);
   });
 });
+
+describe('most liked author', () => {
+  test('Empty blog list should return null', () => {
+    expect(listHelper.mostLikes([])).toBeNull();
+  });
+
+  test('Single blog list, should return that blog author and likes', () => {
+    const expectedAuthor = { author: 'Edsger W. Dijkstra', likes: 5 };
+    expect(listHelper.mostLikes(listWithOneBlog)).toEqual(expectedAuthor);
+  });
+
+  test('Several blogs list, should return author with most likes', () => {
+    const expectedAuthor = { author: 'Edsger W. Dijkstra', likes: 17 };
+    expect(listHelper.mostLikes(listWithSeveralBlogs)).toEqual(expectedAuthor);
+  });
+});

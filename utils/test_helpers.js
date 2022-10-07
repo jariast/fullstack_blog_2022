@@ -1,3 +1,5 @@
+const Blog = require('../models/blog');
+
 const listWithOneBlog = [
   {
     _id: '5a422aa71b54a676234d17f8',
@@ -68,7 +70,42 @@ const listWithSeveralBlogs = [
   },
 ];
 
+const initialBlogs = [
+  {
+    title: 'Canonical string reduction',
+    author: 'Edsger W. Dijkstra',
+    url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+    likes: 12,
+  },
+  {
+    title: 'First class tests',
+    author: 'Robert C. Martin',
+    url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
+    likes: 10,
+  },
+];
+
+const nonExistingId = async () => {
+  const blog = new Blog({
+    title: 'test title',
+    author: 'Robert C. Martin',
+    url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
+    likes: 78,
+  });
+
+  await blog.save();
+  await blog.remove();
+};
+
+const blogsInDB = async () => {
+  const blogs = await Blog.find({});
+  return blogs.map((blog) => blog.toJSON());
+};
+
 module.exports = {
   listWithOneBlog,
   listWithSeveralBlogs,
+  initialBlogs,
+  nonExistingId,
+  blogsInDB,
 };

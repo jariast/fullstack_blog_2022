@@ -3,7 +3,7 @@ const supertest = require('supertest');
 
 const app = require('../app');
 const Blog = require('../models/blog');
-const { initialBlogs } = require('../utils/test_helpers');
+const { initialBlogs, blogsInDB } = require('../utils/test_helpers');
 
 const api = supertest(app);
 
@@ -25,6 +25,29 @@ describe('GET', () => {
     const response = await api.get('/api/blogs');
     expect(response.body[0].id).toBeDefined();
     expect(response.body[0]._id).toBeUndefined();
+  });
+});
+
+describe('POST', () => {
+  test('A valid Blog can be added', async () => {
+    const newBlog = {
+      title: 'Blog Title 02',
+      author: 'camono',
+      url: 'google.com',
+      likes: 8,
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
+
+    const blogsAfterPost = await blogsInDB();
+    expect(blogsAfterPost).toHaveLength(initialBlogs.length + 1);
+
+    const blogTitles = blogsAfterPost.map((blog) => blog.title);
+    expect(blogTitles).toContain(newBlog.title);
   });
 });
 

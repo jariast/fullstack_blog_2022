@@ -49,6 +49,18 @@ describe('POST', () => {
     const blogTitles = blogsAfterPost.map((blog) => blog.title);
     expect(blogTitles).toContain(newBlog.title);
   });
+
+  test('If a blog is missing the likes property, it should default it to 0', async () => {
+    const newBlog = {
+      title: 'Blog Title 02',
+      author: 'camono',
+      url: 'google.com',
+    };
+
+    const responseBlog = await api.post('/api/blogs').send(newBlog);
+    expect(responseBlog.status).toBe(201);
+    expect(responseBlog.body.likes).toBe(0);
+  });
 });
 
 afterAll(() => {

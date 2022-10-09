@@ -61,6 +61,28 @@ describe('POST', () => {
     expect(responseBlog.status).toBe(201);
     expect(responseBlog.body.likes).toBe(0);
   });
+
+  test('If a blog is missing its Title the backend will return an error (400)', async () => {
+    const newBlog = {
+      author: 'camono',
+      url: 'google.com',
+      likes: 0,
+    };
+
+    const responseBlog = await api.post('/api/blogs').send(newBlog);
+    expect(responseBlog.status).toBe(400);
+  });
+
+  test('If a blog is missing its URL the backend will return an error (400)', async () => {
+    const newBlog = {
+      title: 'Blog Title',
+      author: 'camono',
+      likes: 0,
+    };
+
+    const responseBlog = await api.post('/api/blogs').send(newBlog);
+    expect(responseBlog.status).toBe(400);
+  });
 });
 
 afterAll(() => {

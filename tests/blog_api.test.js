@@ -14,10 +14,18 @@ beforeEach(async () => {
   await Promise.all(promisesArray);
 });
 
-test('When making a GET request, all blogs are returned and the type content is JSON', async () => {
-  const response = await api.get('/api/blogs');
-  expect(response.body).toHaveLength(initialBlogs.length);
-  expect(response.type).toBe('application/json');
+describe('GET', () => {
+  test('When making a GET request, all blogs are returned and the type content is JSON', async () => {
+    const response = await api.get('/api/blogs');
+    expect(response.body).toHaveLength(initialBlogs.length);
+    expect(response.type).toBe('application/json');
+  });
+
+  test('The returned objects have an id property and no longer have the _id property', async () => {
+    const response = await api.get('/api/blogs');
+    expect(response.body[0].id).toBeDefined();
+    expect(response.body[0]._id).toBeUndefined();
+  });
 });
 
 afterAll(() => {

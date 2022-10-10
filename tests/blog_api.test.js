@@ -131,6 +131,23 @@ describe('DELETE', () => {
   });
 });
 
+describe('PUT', () => {
+  test('Updates the likes on a Blog', async () => {
+    const initialBlogsInDB = await blogsInDB();
+    const blogToUpdate = initialBlogsInDB[1];
+
+    blogToUpdate.likes += 10;
+
+    const updatedBlog = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(blogToUpdate);
+
+    //OJO: the result of calling the API is an httpResponse, not an Blog Object
+    // The Blog Object is inside the body property of the response.
+    expect(updatedBlog.body.likes).toBe(blogToUpdate.likes);
+  });
+});
+
 afterAll(() => {
   mongoose.connection.close();
 });

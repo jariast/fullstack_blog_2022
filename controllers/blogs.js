@@ -20,6 +20,22 @@ blogsRouter.delete('/:id', async (request, response) => {
   response.status(204).end();
 });
 
+blogsRouter.put('/:id', async (request, response) => {
+  const id = request.params.id;
+
+  //It seems like even if the likes property is not set, the DB just resturns the Document
+  //Maybe review if we must validate that the request has the likes property
+  const update = {
+    likes: request.body.likes,
+  };
+
+  const updatedBlog = await Blog.findByIdAndUpdate(id, update, {
+    new: true,
+  });
+
+  response.json(updatedBlog);
+});
+
 blogsRouter.post('/', async (request, response) => {
   const blog = new Blog(request.body);
 

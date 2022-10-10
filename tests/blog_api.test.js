@@ -114,6 +114,23 @@ describe('POST', () => {
   });
 });
 
+describe('DELETE', () => {
+  test('Deletes a Blog if valid Id and blog exists', async () => {
+    const initialBlogsInDB = await blogsInDB();
+
+    const blogToDelete = initialBlogsInDB[0];
+
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+
+    const blogsAfterDelete = await blogsInDB();
+
+    expect(blogsAfterDelete.length).toBe(initialBlogsInDB.length - 1);
+
+    const blogTitles = blogsAfterDelete.map((blog) => blog.title);
+    expect(blogTitles).not.toContain(blogToDelete.title);
+  });
+});
+
 afterAll(() => {
   mongoose.connection.close();
 });

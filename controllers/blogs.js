@@ -13,6 +13,13 @@ blogsRouter.get('/:id', async (request, response) => {
   blog ? response.json(blog) : response.status(404).end();
 });
 
+blogsRouter.delete('/:id', async (request, response) => {
+  const id = request.params.id;
+
+  await Blog.findByIdAndRemove(id);
+  response.status(204).end();
+});
+
 blogsRouter.post('/', async (request, response) => {
   const blog = new Blog(request.body);
 

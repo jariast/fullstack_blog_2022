@@ -95,6 +95,8 @@ const nonExistingId = async () => {
 
   await blog.save();
   await blog.remove();
+
+  return blog.id;
 };
 
 const blogsInDB = async () => {

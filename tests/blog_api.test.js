@@ -3,7 +3,11 @@ const supertest = require('supertest');
 
 const app = require('../app');
 const Blog = require('../models/blog');
-const { initialBlogs, blogsInDB } = require('../utils/test_helpers');
+const {
+  initialBlogs,
+  blogsInDB,
+  nonExistingId,
+} = require('../utils/test_helpers');
 
 const api = supertest(app);
 
@@ -25,6 +29,31 @@ describe('GET', () => {
     const response = await api.get('/api/blogs');
     expect(response.body[0].id).toBeDefined();
     expect(response.body[0]._id).toBeUndefined();
+  });
+
+  test('Gets a blog when providing a valid ID and if the blog exists', async () => {
+    const initialBlogsInDB = await blogsInDB();
+
+    const blogToView = initialBlogsInDB[0];
+
+    const responseBlog = await api
+      .get(`/api/blogs/${blogToView.id}`)
+      .expect(200);
+
+    const processedBlog = JSON.parse(JSON.stringify(blogToView));
+    expect(responseBlog.body).toEqual(processedBlog);
+  });
+
+  test('Returns 404 when providing a Valid ID but the blog doesnt exist', async () => {
+    const validId = await nonExistingId();
+    await api.get(`/api/blogs/${validId}`).expect(404);
+  });
+
+  test('Returns 400 and an error message when providing an invalid ID', async () => {
+    const invalidId = '63400fabb6ac1176061618adsds1sadasds';
+
+    const response = await api.get(`/api/blogs/${invalidId}`).expect(400);
+    expect(response.body.error).toBe('malformatted id');
   });
 });
 

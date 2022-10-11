@@ -53,7 +53,7 @@ describe('GET', () => {
 });
 
 describe('POST', () => {
-  test('User can be created', async () => {
+  test('User can be created, returned user has an ID and doesnt return the passwordhash', async () => {
     const initialUsersinDB = await usersInDB();
 
     const newUserObject = { ...initialUsers[1] };
@@ -76,6 +76,50 @@ describe('POST', () => {
     const usernames = usersAfterCreation.map((user) => user.username);
 
     expect(usernames).toContain(newUserObject.username);
+  });
+
+  test('User with password less than 3 chars, user cant be created', async () => {
+    const initialUsersinDB = await usersInDB();
+
+    const newUserObject = {
+      username: 'UserName02',
+      name: 'User Name 02',
+      password: 'te',
+    };
+
+    const response = await api
+      .post('/api/users')
+      .send(newUserObject)
+      .expect(400);
+
+    const usersAfterPost = await usersInDB();
+
+    expect(response.body.error).toBe(
+      'Invalid Password, make sure the password has at least 3 characters'
+    );
+
+    expect(usersAfterPost.length).toBe(initialUsersinDB.length);
+  });
+
+  test('User with username less than 3 chars, user cant be created', async () => {
+    const initialUsersInDB = await usersInDB();
+
+    const newUserObject = {
+      username: 'Us',
+      name: 'User Name 02',
+      password: 'testeq',
+    };
+
+    const response = await api
+      .post('/api/users')
+      .send(newUserObject)
+      .expect(400);
+
+    const usersAfterPost = await usersInDB();
+
+    expect(response.body.error).toBeDefined();
+
+    expect(usersAfterPost.length).toBe(initialUsersInDB.length);
   });
 });
 

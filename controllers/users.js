@@ -10,6 +10,10 @@ usersRouters.get('/', async (request, response) => {
 usersRouters.post('/', async (request, response) => {
   const { username, name, password } = request.body;
 
+  if (!password || password.length < 3) {
+    throw Error('PassWordError');
+  }
+
   const passwordHash = await bcryptjs.hash(password, 10);
 
   const user = new User({

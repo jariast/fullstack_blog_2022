@@ -20,12 +20,14 @@ const errorHandler = (error, request, response, next) => {
   } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message });
   } else if (error.message === 'PassWordError') {
-    return response
-      .status(400)
-      .json({
-        error:
-          'Invalid Password, make sure the password has at least 3 characters',
-      });
+    return response.status(400).json({
+      error:
+        'Invalid Password, make sure the password has at least 3 characters',
+    });
+  } else if (error.message === 'AuthError') {
+    return response.status(400).json({
+      error: 'Invalid User or Password.',
+    });
   }
 
   next(error);

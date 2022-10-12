@@ -16,9 +16,31 @@ blogsRouter.get('/:id', async (request, response) => {
 });
 
 blogsRouter.delete('/:id', async (request, response) => {
-  const id = request.params.id;
+  const blogId = request.params.id;
 
-  await Blog.findByIdAndRemove(id);
+  const decodedToken = jwt.verify(request.token, process.env.SECRET);
+  if (!decodedToken.id) {
+    throw Error('InvalidToken');
+  }
+
+  const user = await User.findById(decodedToken.id);
+  const blog = await Blog.findById(blogId);
+
+  if (!blog) {
+    throw Error('BlogNotFound');
+  }
+
+  if (user.id.toString() !== blog.user.toString()) {
+    throw Error('InvalidToken');
+  }
+
+  await blog.delete();
+
+  //We must map each blogId to a String because they are objects at the moment
+  const blogIdsStrings = user.blogs.map((x) => x.toString());
+  user.blogs = blogIdsStrings.filter((x) => x !== blogId);
+  await user.save();
+
   response.status(204).end();
 });
 
@@ -46,9 +68,8 @@ blogsRouter.post('/', async (request, response) => {
     throw Error('InvalidToken');
   }
 
-  const user = await User.findById(decodedToken.id);
+  const creator = await User.findById(decodedToken.id);
 
-  const creator = user;
   blogObject.user = creator._id;
   const blog = new Blog(request.body);
 

@@ -33,8 +33,10 @@ const errorHandler = (error, request, response, next) => {
     error.name === 'JsonWebTokenError'
   ) {
     return response.status(401).json({
-      error: 'Invalid or Missing token.',
+      error: 'Invalid or Missing token',
     });
+  } else if (error.message === 'BlogNotFound') {
+    return response.status(404).json({ error: 'Blog Not Found' });
   }
 
   next(error);

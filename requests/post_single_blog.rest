@@ -1,9 +1,10 @@
 POST  http://localhost:3001/api/blogs
 content-type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNhbW9ubyIsImlkIjoiNjM0NmUzMzNlYTBiYWJlMTQ5NjBlZTEyIiwiaWF0IjoxNjY1NTkwMDgwfQ.PqK9lAkVNQCNzdiHh0JPd6YbxaAIeyduzXoTKIO3swI
 
 {
-  "title": "Blog Title 02",
-  "author": "camono",
+  "title": "Vacunas bad",
+  "author": "Elking Patarroyo",
   "url": "google.com",
   "likes": 8
 }

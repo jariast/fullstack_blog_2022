@@ -28,6 +28,13 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).json({
       error: 'Invalid User or Password.',
     });
+  } else if (
+    error.message === 'InvalidToken' ||
+    error.name === 'JsonWebTokenError'
+  ) {
+    return response.status(401).json({
+      error: 'Invalid or Missing token.',
+    });
   }
 
   next(error);

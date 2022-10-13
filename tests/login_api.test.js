@@ -1,30 +1,21 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
-const bcryptjs = require('bcryptjs');
 
 const app = require('../app');
 
-const User = require('../models/user');
-const { initialUsers } = require('../utils/test_helpers');
+const { initialUsers, saveInitialUsersToDB } = require('../utils/test_helpers');
 
 const api = supertest(app);
 
-beforeEach(async () => {
-  await User.deleteMany({});
-
-  const userObject = { ...initialUsers[0], passwordHash: '' };
-
-  userObject.passwordHash = await bcryptjs.hash(initialUsers[0].password, 10);
-  delete userObject.password;
-  const user = new User(userObject);
-
-  await user.save();
-});
+beforeAll(async () => {
+  await saveInitialUsersToDB();
+}, 100000);
 
 describe('Login', () => {
-  test('When using valid credentils, should return token and user', async () => {
+  test('When using valid credentials, should return token and user', async () => {
     const user = { ...initialUsers[0] };
     delete user.name;
+    delete user.passwordHash;
 
     const response = await api
       .post('/api/login')

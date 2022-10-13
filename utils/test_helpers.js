@@ -91,11 +91,15 @@ const initialUsers = [
     username: 'UserName01',
     name: 'User Name 01',
     password: 'passtest001',
+    passwordHash:
+      '$2a$10$WdRH6wCaYyzdDyLc262wMeA1XEXpZEMQ5syRedPzjHjKl0n0sXBzu',
   },
   {
     username: 'UserName02',
     name: 'User Name 02',
     password: 'testpass02',
+    passwordHash:
+      '$2a$10$PerwzIR0iyNeTS2nI3xQ.u0GTuj/5iOCZzV25ZDK5Z72XeOcwe0/.',
   },
 ];
 
@@ -123,6 +127,17 @@ const usersInDB = async () => {
   return users.map((user) => user.toJSON());
 };
 
+const saveInitialUsersToDB = async () => {
+  await User.deleteMany({});
+  const userObjects = initialUsers.map((user) => {
+    const newUser = { ...user };
+    delete newUser.password;
+    return new User(newUser);
+  });
+  const promisesArray = userObjects.map((user) => user.save());
+  await Promise.all(promisesArray);
+};
+
 module.exports = {
   listWithOneBlog,
   listWithSeveralBlogs,
@@ -131,4 +146,5 @@ module.exports = {
   nonExistingId,
   blogsInDB,
   usersInDB,
+  saveInitialUsersToDB,
 };

@@ -1,19 +1,38 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
+const jwt = require('jsonwebtoken');
 
 const app = require('../app');
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const {
   initialBlogs,
   blogsInDB,
   nonExistingId,
+  saveInitialUsersToDB,
 } = require('../utils/test_helpers');
 
 const api = supertest(app);
+let firstUserId,
+  firstUserToken,
+  secondUsertoken = '';
+
+beforeAll(async () => {
+  await saveInitialUsersToDB();
+
+  const users = await User.find({});
+  [firstUserToken, secondUsertoken] = users.map((user) =>
+    jwt.sign({ username: user.username, id: user._id }, process.env.SECRET)
+  );
+  firstUserId = users[0]._id;
+}, 10000);
 
 beforeEach(async () => {
   await Blog.deleteMany({});
-  const blogObjects = initialBlogs.map((blog) => new Blog(blog));
+  const blogObjects = initialBlogs.map((blog) => {
+    blog.user = firstUserId;
+    return new Blog(blog);
+  });
   const promisesArray = blogObjects.map((blog) => blog.save());
   await Promise.all(promisesArray);
 });
@@ -64,11 +83,13 @@ describe('POST', () => {
       author: 'camono',
       url: 'google.com',
       likes: 8,
+      user: firstUserId,
     };
 
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `bearer ${firstUserToken}`)
       .expect(201)
       .expect('Content-Type', /application\/json/);
 
@@ -84,9 +105,13 @@ describe('POST', () => {
       title: 'Blog Title 02',
       author: 'camono',
       url: 'google.com',
+      user: firstUserId,
     };
 
-    const responseBlog = await api.post('/api/blogs').send(newBlog);
+    const responseBlog = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `bearer ${firstUserToken}`);
     expect(responseBlog.status).toBe(201);
     expect(responseBlog.body.likes).toBe(0);
   });
@@ -96,9 +121,13 @@ describe('POST', () => {
       author: 'camono',
       url: 'google.com',
       likes: 0,
+      user: firstUserId,
     };
 
-    const responseBlog = await api.post('/api/blogs').send(newBlog);
+    const responseBlog = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `bearer ${firstUserToken}`);
     expect(responseBlog.status).toBe(400);
   });
 
@@ -107,10 +136,14 @@ describe('POST', () => {
       title: 'Blog Title',
       author: 'camono',
       likes: 0,
+      user: firstUserId,
     };
 
-    const responseBlog = await api.post('/api/blogs').send(newBlog);
-    expect(responseBlog.status).toBe(400);
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `bearer ${firstUserToken}`)
+      .expect(400);
   });
 });
 
@@ -120,7 +153,10 @@ describe('DELETE', () => {
 
     const blogToDelete = initialBlogsInDB[0];
 
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+      .set('Authorization', `bearer ${firstUserToken}`);
 
     const blogsAfterDelete = await blogsInDB();
 

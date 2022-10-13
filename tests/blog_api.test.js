@@ -25,7 +25,7 @@ beforeAll(async () => {
     jwt.sign({ username: user.username, id: user._id }, process.env.SECRET)
   );
   firstUserId = users[0]._id;
-}, 10000);
+}, 100000);
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -35,6 +35,11 @@ beforeEach(async () => {
   });
   const promisesArray = blogObjects.map((blog) => blog.save());
   await Promise.all(promisesArray);
+
+  const blogsAfterCreation = await blogsInDB();
+  const user = await User.findById(firstUserId);
+  user.blogs = blogsAfterCreation.map((blog) => blog.id.toString());
+  await user.save();
 });
 
 describe('GET', () => {
@@ -78,6 +83,8 @@ describe('GET', () => {
 
 describe('POST', () => {
   test('A valid Blog can be added', async () => {
+    const userBeforeBlogCreation = await User.findById(firstUserId);
+
     const newBlog = {
       title: 'Blog Title 02',
       author: 'camono',
@@ -86,7 +93,7 @@ describe('POST', () => {
       user: firstUserId,
     };
 
-    await api
+    const addedBlogResponse = await api
       .post('/api/blogs')
       .send(newBlog)
       .set('Authorization', `bearer ${firstUserToken}`)
@@ -98,6 +105,16 @@ describe('POST', () => {
 
     const blogTitles = blogsAfterPost.map((blog) => blog.title);
     expect(blogTitles).toContain(newBlog.title);
+
+    const userAfterBlogCreation = await User.findById(firstUserId);
+    expect(userAfterBlogCreation.blogs.length).toBe(
+      userBeforeBlogCreation.blogs.length + 1
+    );
+    const blogIdsStrings = userAfterBlogCreation.blogs.map((x) => x.toString());
+    const foundAddedBlogOnUser = blogIdsStrings.find(
+      (blog) => blog === addedBlogResponse.body.id
+    );
+    expect(foundAddedBlogOnUser).toBeTruthy();
   });
 
   test('If a blog is missing the likes property, it should default it to 0', async () => {
@@ -145,6 +162,18 @@ describe('POST', () => {
       .set('Authorization', `bearer ${firstUserToken}`)
       .expect(400);
   });
+
+  test('When an unauthenticated user tries to add blog, the server returns an error (401)', async () => {
+    const newBlog = {
+      title: 'Blog Title 02',
+      author: 'camono',
+      url: 'google.com',
+      likes: 8,
+      user: firstUserId,
+    };
+
+    await api.post('/api/blogs').send(newBlog).expect(401);
+  });
 });
 
 describe('DELETE', () => {
@@ -155,8 +184,8 @@ describe('DELETE', () => {
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
-      .expect(204)
-      .set('Authorization', `bearer ${firstUserToken}`);
+      .set('Authorization', `bearer ${firstUserToken}`)
+      .expect(204);
 
     const blogsAfterDelete = await blogsInDB();
 
@@ -164,6 +193,33 @@ describe('DELETE', () => {
 
     const blogTitles = blogsAfterDelete.map((blog) => blog.title);
     expect(blogTitles).not.toContain(blogToDelete.title);
+  });
+
+  test('When a different user than the creator, tries to delete a blog, the server returns 401', async () => {
+    const initialBlogsInDB = await blogsInDB();
+
+    const blogToDelete = initialBlogsInDB[0];
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `bearer ${secondUsertoken}`)
+      .expect(401);
+
+    const blogsAfterTryingDelete = await blogsInDB();
+
+    expect(blogsAfterTryingDelete.length).toBe(initialBlogsInDB.length);
+  });
+
+  test('When an unauthenticated user tries to delete a blog, the server returns an error (401)', async () => {
+    const initialBlogsInDB = await blogsInDB();
+
+    const blogToDelete = initialBlogsInDB[0];
+
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(401);
+
+    const blogsAfterTryingDelete = await blogsInDB();
+
+    expect(blogsAfterTryingDelete.length).toBe(initialBlogsInDB.length);
   });
 });
 

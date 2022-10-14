@@ -1,0 +1,10 @@
+POST  http://localhost:3001/api/blogs
+content-type: application/json
+Authorization: bearer 
+
+{
+  "title": "testunfg",
+  "author": "test author",
+  "url": "google.com",
+  "likes": 2
+}

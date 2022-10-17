@@ -43,13 +43,25 @@ blogsRouter.put('/:id', async (request, response) => {
 
   //It seems like even if the likes property is not set, the DB just resturns the Document
   //Maybe review if we must validate that the request has the likes property
-  const update = {
-    likes: request.body.likes,
-  };
+  // const update = {
+  //   likes: request.body.likes,
+  // };
+  //I think I was making a mistake by only updating the likes property
+  //The PUT method assumes we're going to replace the entire object, so we must send the entire blog
+  //from the frontEnd
+  const blog = request.body;
 
-  const updatedBlog = await Blog.findByIdAndUpdate(id, update, {
+  blog.user = blog.user.id;
+
+  //We must rerun the validators in order to ensure that the Blog object meets the
+  //schema requirements.
+  const updatedBlog = await Blog.findByIdAndUpdate(id, blog, {
     new: true,
+    runValidators: true,
+    context: 'query',
   });
+
+  await updatedBlog.populate('user', { username: 1, name: 1 });
 
   response.json(updatedBlog);
 });
@@ -66,6 +78,8 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
 
   creator.blogs = creator.blogs.concat(savedBlog._id);
   await creator.save();
+
+  await savedBlog.populate('user', { username: 1, name: 1 });
 
   response.status(201).json(savedBlog);
 });

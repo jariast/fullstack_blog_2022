@@ -60,7 +60,12 @@ const userExtractor = async (request, response, next) => {
   if (!decodedToken.id) {
     throw Error('InvalidToken');
   }
-  request.user = await User.findById(decodedToken.id);
+
+  const user = await User.findById(decodedToken.id);
+  if (!user) {
+    throw Error('InvalidToken');
+  }
+  request.user = user;
   next();
 };
 

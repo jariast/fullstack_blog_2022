@@ -4,7 +4,10 @@ const Blog = require('../models/blog');
 const { userExtractor } = require('../utils/middleware');
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 });
+  const shouldPopulate = request.query.populate;
+  const blogs = shouldPopulate
+    ? await Blog.find({}).populate('user', { username: 1, name: 1 })
+    : await Blog.find({});
   response.json(blogs);
 });
 

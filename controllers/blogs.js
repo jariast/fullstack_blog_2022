@@ -80,8 +80,6 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
   creator.blogs = creator.blogs.concat(savedBlog._id);
   await creator.save();
 
-  await savedBlog.populate('user', { username: 1, name: 1 });
-
   response.status(201).json(savedBlog);
 });
 

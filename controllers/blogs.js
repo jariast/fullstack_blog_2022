@@ -4,7 +4,10 @@ const Blog = require('../models/blog');
 const { userExtractor } = require('../utils/middleware');
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 });
+  const shouldPopulate = request.query.populate;
+  const blogs = shouldPopulate
+    ? await Blog.find({}).populate('user', { username: 1, name: 1 })
+    : await Blog.find({});
   response.json(blogs);
 });
 
@@ -61,8 +64,6 @@ blogsRouter.put('/:id', async (request, response) => {
     context: 'query',
   });
 
-  await updatedBlog.populate('user', { username: 1, name: 1 });
-
   response.json(updatedBlog);
 });
 
@@ -78,8 +79,6 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
 
   creator.blogs = creator.blogs.concat(savedBlog._id);
   await creator.save();
-
-  await savedBlog.populate('user', { username: 1, name: 1 });
 
   response.status(201).json(savedBlog);
 });
